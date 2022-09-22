@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
-#define SIZE 1024
+#define SIZE 2048
+#define GENERATIONS 2000
 
 int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
 {
@@ -11,13 +13,13 @@ int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
     // Checks if row or column is on the edge, since board needs infinite edges
     if (row == 0)
     {
-        previousRow = SIZE;
+        previousRow = SIZE-1;
     }
     else
     {
         previousRow = row - 1;
     }
-    if (row == SIZE)
+    if (row == SIZE-1)
     {
         nextRow = 0;
     }
@@ -27,13 +29,13 @@ int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
     }
     if (column == 0)
     {
-        previousColumn = SIZE;
+        previousColumn = SIZE-1;
     }
     else
     {
         previousColumn = column - 1;
     }
-    if (column == SIZE)
+    if (column == SIZE-1)
     {
         nextColumn = 0;
     }
@@ -153,6 +155,8 @@ int main(int argc, char **argv)
 {
     char grid[SIZE][SIZE], newgrid[SIZE][SIZE];
     int i, j;
+    clock_t start, end;
+    double cpu_time_used;
 
     // Initialize grids with zeros
     initializeWithZeros(grid);
@@ -175,23 +179,16 @@ int main(int argc, char **argv)
     grid[lin + 1][col + 1] = 1;
     grid[lin + 2][col + 1] = 1;
 
-    printGrid(grid, 10);
-    printf("\n");
-
-    calculateNewGrid(grid, newgrid);
-    printGrid(grid, 10);
-    printf("\n");
-
-    calculateNewGrid(grid, newgrid);
-    printGrid(grid, 10);
-    printf("\n");
-
-    calculateNewGrid(grid, newgrid);
-    printGrid(grid, 10);
-    printf("\n");
-
-    calculateNewGrid(grid, newgrid);
-    printGrid(grid, 10);
+    start = clock();
+    for ( i = 0; i < GENERATIONS; i++)
+    {
+        calculateNewGrid(grid, newgrid);
+    }
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    
+    printf("Alive: %d \n", countAliveCells(grid));
+    printf("Time taken: %f \n", cpu_time_used);
 
     return 0;
 }
