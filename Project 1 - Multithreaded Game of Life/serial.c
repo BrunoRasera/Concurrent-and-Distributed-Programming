@@ -1,3 +1,13 @@
+/*
+Programação Concorrente e Distribuída - 2022/2
+
+Trabalho 1 
+Game of Life / High Life - PThreads e OpenMP
+
+Bruno Rasera
+Letícia Lisboa
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -162,7 +172,7 @@ int main(int argc, char **argv)
     initializeWithZeros(grid);
     initializeWithZeros(newgrid);
 
-    // GLIDER
+    // Add a Glider
     int lin = 1, col = 1;
     grid[lin][col + 1] = 1;
     grid[lin + 1][col + 2] = 1;
@@ -170,7 +180,7 @@ int main(int argc, char **argv)
     grid[lin + 2][col + 1] = 1;
     grid[lin + 2][col + 2] = 1;
 
-    // R-pentomino
+    // Add a R-pentomino
     lin = 10;
     col = 30;
     grid[lin][col + 1] = 1;
