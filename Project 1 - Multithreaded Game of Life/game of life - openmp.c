@@ -1,7 +1,7 @@
 /*
 Programação Concorrente e Distribuída - 2022/2
 
-Trabalho 1 
+Trabalho 1
 Game of Life / High Life - PThreads e OpenMP
 
 Bruno Rasera
@@ -11,9 +11,11 @@ Letícia Lisboa
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <omp.h>
 
 #define SIZE 2048
 #define GENERATIONS 200
+#define NUM_THREADS 2
 
 int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
 {
@@ -23,13 +25,13 @@ int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
     // Checks if row or column is on the edge, since board needs infinite edges
     if (row == 0)
     {
-        previousRow = SIZE-1;
+        previousRow = SIZE - 1;
     }
     else
     {
         previousRow = row - 1;
     }
-    if (row == SIZE-1)
+    if (row == SIZE - 1)
     {
         nextRow = 0;
     }
@@ -39,13 +41,13 @@ int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
     }
     if (column == 0)
     {
-        previousColumn = SIZE-1;
+        previousColumn = SIZE - 1;
     }
     else
     {
         previousColumn = column - 1;
     }
-    if (column == SIZE-1)
+    if (column == SIZE - 1)
     {
         nextColumn = 0;
     }
@@ -107,32 +109,37 @@ void initializeWithZeros(char grid[SIZE][SIZE])
 
 void calculateNewGrid(char grid[SIZE][SIZE], char newgrid[SIZE][SIZE])
 {
-    int i, j;
+    int i, j, th_id;
 
-    for (i = 0; i < SIZE; i++)
+    #pragma omp parallel private(th_id)
     {
-        for (j = 0; j < SIZE; j++)
+        th_id = omp_get_thread_num();
+
+        for (i = 0; i < SIZE; i++)
         {
-            int neighborsAlive = getNumberOfNeighborsAlive(i, j, grid);
-
-            // Dead cell with 3 alive neighbors becomes alive
-            if (grid[i][j] == 0 && neighborsAlive == 3)
+            for (j = th_id * (SIZE / NUM_THREADS); j < (th_id + 1) * (SIZE / NUM_THREADS); j++)
             {
-                newgrid[i][j] = 1;
-            }
+                int neighborsAlive = getNumberOfNeighborsAlive(i, j, grid);
 
-            // Alive cell
-            if (grid[i][j] == 1)
-            {
-                // Alive cell dies
-                if (neighborsAlive < 2 || neighborsAlive > 3)
-                {
-                    newgrid[i][j] = 0;
-                }
-                // Alive cell continues to live
-                else
+                // Dead cell with 3 alive neighbors becomes alive
+                if (grid[i][j] == 0 && neighborsAlive == 3)
                 {
                     newgrid[i][j] = 1;
+                }
+
+                // Alive cell
+                if (grid[i][j] == 1)
+                {
+                    // Alive cell dies
+                    if (neighborsAlive < 2 || neighborsAlive > 3)
+                    {
+                        newgrid[i][j] = 0;
+                    }
+                    // Alive cell continues to live
+                    else
+                    {
+                        newgrid[i][j] = 1;
+                    }
                 }
             }
         }
@@ -167,6 +174,7 @@ int main(int argc, char **argv)
     int i, j;
     clock_t start, end;
     double cpu_time_used;
+    int th_id;
 
     // Initialize grids with zeros
     initializeWithZeros(grid);
@@ -189,14 +197,17 @@ int main(int argc, char **argv)
     grid[lin + 1][col + 1] = 1;
     grid[lin + 2][col + 1] = 1;
 
+    omp_set_num_threads(NUM_THREADS);
+
     start = clock();
-    for ( i = 0; i < GENERATIONS; i++)
+    
+    for (i = 0; i < GENERATIONS; i++)
     {
         calculateNewGrid(grid, newgrid);
     }
     end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    
+    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+
     printf("Alive: %d \n", countAliveCells(grid));
     printf("Time taken: %f \n", cpu_time_used);
 
