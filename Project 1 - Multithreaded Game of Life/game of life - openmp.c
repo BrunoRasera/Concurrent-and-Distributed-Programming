@@ -14,7 +14,7 @@ Letícia Lisboa
 #include <omp.h>
 
 #define SIZE 2048
-#define GENERATIONS 200
+#define GENERATIONS 2000
 #define NUM_THREADS 2
 
 int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
@@ -109,37 +109,33 @@ void initializeWithZeros(char grid[SIZE][SIZE])
 
 void calculateNewGrid(char grid[SIZE][SIZE], char newgrid[SIZE][SIZE])
 {
-    int i, j, th_id;
+    int i, j;
 
-    #pragma omp parallel private(th_id)
+    #pragma omp parallel for private (i, j) shared(grid, newgrid)
+    for (i = 0; i < SIZE; i++)
     {
-        th_id = omp_get_thread_num();
-
-        for (i = 0; i < SIZE; i++)
+        for (j = 0; j < SIZE; j++)
         {
-            for (j = th_id * (SIZE / NUM_THREADS); j < (th_id + 1) * (SIZE / NUM_THREADS); j++)
-            {
-                int neighborsAlive = getNumberOfNeighborsAlive(i, j, grid);
+            int neighborsAlive = getNumberOfNeighborsAlive(i, j, grid);
 
-                // Dead cell with 3 alive neighbors becomes alive
-                if (grid[i][j] == 0 && neighborsAlive == 3)
+            // Dead cell with 3 alive neighbors becomes alive
+            if (grid[i][j] == 0 && neighborsAlive == 3)
+            {
+                newgrid[i][j] = 1;
+            }
+
+            // Alive cell
+            if (grid[i][j] == 1)
+            {
+                // Alive cell dies
+                if (neighborsAlive < 2 || neighborsAlive > 3)
+                {
+                    newgrid[i][j] = 0;
+                }
+                // Alive cell continues to live
+                else
                 {
                     newgrid[i][j] = 1;
-                }
-
-                // Alive cell
-                if (grid[i][j] == 1)
-                {
-                    // Alive cell dies
-                    if (neighborsAlive < 2 || neighborsAlive > 3)
-                    {
-                        newgrid[i][j] = 0;
-                    }
-                    // Alive cell continues to live
-                    else
-                    {
-                        newgrid[i][j] = 1;
-                    }
                 }
             }
         }
@@ -200,7 +196,7 @@ int main(int argc, char **argv)
     omp_set_num_threads(NUM_THREADS);
 
     start = clock();
-    
+
     for (i = 0; i < GENERATIONS; i++)
     {
         calculateNewGrid(grid, newgrid);

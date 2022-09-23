@@ -13,7 +13,7 @@ Letícia Lisboa
 #include <time.h>
 
 #define SIZE 2048
-#define GENERATIONS 200
+#define GENERATIONS 2000
 
 int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
 {
