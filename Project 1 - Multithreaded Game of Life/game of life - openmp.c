@@ -158,7 +158,10 @@ void printGrid(char grid[SIZE][SIZE], int printSize)
     {
         for (j = 0; j < printSize; j++)
         {
-            printf("%d ", grid[i][j]);
+            if (grid[i][j] == 0)
+                printf(". ");
+            else
+                printf("# ");
         }
         printf("\n");
     }
@@ -196,7 +199,6 @@ int main(int argc, char **argv)
     omp_set_num_threads(NUM_THREADS);
 
     start = omp_get_wtime();
-
 
     for (i = 0; i < GENERATIONS; i++)
     {

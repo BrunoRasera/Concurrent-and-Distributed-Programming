@@ -120,8 +120,8 @@ void *calculateNewGrid(void *threadarg)
         {
             int neighborsAlive = getNumberOfNeighborsAlive(i, j);
 
-            // Dead cell with 3 alive neighbors becomes alive
-            if (grid[i][j] == 0 && neighborsAlive == 3)
+            // Dead cell with 3 or 6 alive neighbors becomes alive
+            if (grid[i][j] == 0 && (neighborsAlive == 3 || neighborsAlive == 6))
             {
                 newgrid[i][j] = 1;
             }

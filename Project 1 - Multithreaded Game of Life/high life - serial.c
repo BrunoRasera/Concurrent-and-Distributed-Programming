@@ -155,7 +155,10 @@ void printGrid(char grid[SIZE][SIZE], int printSize)
     {
         for (j = 0; j < printSize; j++)
         {
-            printf("%d ", grid[i][j]);
+            if (grid[i][j] == 0)
+                printf(". ");
+            else
+                printf("# ");
         }
         printf("\n");
     }

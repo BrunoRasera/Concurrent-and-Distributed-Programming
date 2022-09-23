@@ -155,7 +155,10 @@ void printGrid(char grid[SIZE][SIZE], int printSize)
     {
         for (j = 0; j < printSize; j++)
         {
-            printf("%d ", grid[i][j]);
+            if (grid[i][j] == 0)
+                printf(". ");
+            else
+                printf("# ");
         }
         printf("\n");
     }
@@ -192,12 +195,13 @@ int main(int argc, char **argv)
     start = clock();
     for ( i = 0; i < GENERATIONS; i++)
     {
+        printf("Generation %d - Alive: %d \n", i + 1, countAliveCells(grid));
+        printGrid(grid, 50);
         calculateNewGrid(grid, newgrid);
     }
+
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    
-    printf("Alive: %d \n", countAliveCells(grid));
     printf("Time taken: %f \n", cpu_time_used);
 
     return 0;
