@@ -15,7 +15,7 @@ Letícia Lisboa
 
 #define SIZE 2048
 #define GENERATIONS 2000
-#define NUM_THREADS 2
+#define NUM_THREADS 12
 
 int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
 {
@@ -195,14 +195,16 @@ int main(int argc, char **argv)
 
     omp_set_num_threads(NUM_THREADS);
 
-    start = clock();
+    start = omp_get_wtime();
+
 
     for (i = 0; i < GENERATIONS; i++)
     {
         calculateNewGrid(grid, newgrid);
     }
-    end = clock();
-    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    end = omp_get_wtime();
+    cpu_time_used = ((double)(end - start));
 
     printf("Alive: %d \n", countAliveCells(grid));
     printf("Time taken: %f \n", cpu_time_used);
