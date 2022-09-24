@@ -29,7 +29,6 @@ Os testes foram executados 5 vezes para cada algoritmo. O melhor e pior resultad
 
 <br>
 
-<div style="text-align: center;">
 
 #### Game of Life
 
@@ -65,5 +64,4 @@ Os testes foram executados 5 vezes para cada algoritmo. O melhor e pior resultad
 
 ![pthread](results/pthread%20-%20Game%20of%20Life%20vs%20High%20Life.png "pthread")
 
-</div>
 
