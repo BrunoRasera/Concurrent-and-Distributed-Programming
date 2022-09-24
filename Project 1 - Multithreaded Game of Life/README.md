@@ -2,7 +2,6 @@
 
 Este projeto tem como objetivo analisar o ganho de desempenho ao se utilizar o paralelismo em um programa que necessita de muito processamento. Foram utilizadas as bibliotecas *OpenMP* e *pthread* para a criação das threads.
 
----
 ### Game of Life
 
 O Jogo da Vida, criado por John H. Conway, utiliza um autômato celular para simular gerações sucessivas de uma sociedade de organismos vivos.
@@ -21,8 +20,6 @@ Alternativamente ao Jogo do Vida existe uma versão do mesmo conhecida por HighL
 1) Qualquer célula viva com 2 (dois) ou 3 (três) vizinhos deve sobreviver;
 2) Qualquer célula morta com 3 (três) ou 6 (seis) vizinhos torna-se viva;
 3) Qualquer outro caso, células vivas devem morrer e células já mortas devem continuar mortas.
-
---- 
 
 ## Resultados
 
