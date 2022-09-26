@@ -25,6 +25,8 @@ Alternativamente ao Jogo do Vida existe uma versão do mesmo conhecida por HighL
 
 Os algoritmos foram rodados em um computador com um processador [AMD Ryzen 5 5600X](https://www.amd.com/pt/products/cpu/amd-ryzen-5-5600x), que possui 6 núcleos físicos, com capacidade para multithreading, resultando em 12 núcleos lógicos.
 
+Foi utilizado um tabuleiro de dimensões 2048x2048, com dois objetos iniciais e simuladas 2000 gerações.
+
 Os testes foram executados 5 vezes para cada algoritmo. O melhor e pior resultados foram descartados, e o tempo final de execução é a média das outras 3 execuções restantes.
 
 <br>
