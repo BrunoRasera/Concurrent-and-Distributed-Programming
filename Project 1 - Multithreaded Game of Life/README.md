@@ -36,6 +36,8 @@ Os testes foram executados 5 vezes para cada algoritmo. O melhor e pior resultad
 
 ![Game of Life Results](results/Game%20of%20Life.png "Game of Life Results")
 
+![Game of Life speedup and efficiency](results/Game%20of%20Life%20table.png "Game of Life speedup and efficiency")
+
 ![Game of Life OpenMP](results/Game%20of%20Life%20-%20OpenMP.png "Game of Life OpenMP")
 
 ![Game of Life pthread](results/Game%20of%20Life%20-%20pthread.png "Game of Life pthread")
@@ -47,6 +49,8 @@ Os testes foram executados 5 vezes para cada algoritmo. O melhor e pior resultad
 #### High Life
 
 ![High Life Results](results/High%20Life.png "High Life Results")
+
+![High Life speedup and efficiency](results/High%20Life%20table.png "High Life speedup and efficiency")
 
 ![High Life OpenMP](results/HighLife%20-%20OpenMP.png "High Life OpenMP")
 
