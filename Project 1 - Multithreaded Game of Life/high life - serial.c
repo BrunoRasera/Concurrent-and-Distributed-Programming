@@ -6,6 +6,10 @@ Game of Life / High Life - PThreads e OpenMP
 
 Bruno Rasera
 Letícia Lisboa
+
+To increase the stack size in linux and avoid segmentation fault errors, use ulimit -s unlimited 
+To compile openMP version, use the -fopenmp flag on gcc
+To compite pthread version, use  the -pthread flag on gcc
 */
 
 #include <stdlib.h>
