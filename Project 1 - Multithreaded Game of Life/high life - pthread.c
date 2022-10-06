@@ -10,7 +10,7 @@ Letícia Lisboa
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <sys/time.h>
 #include <pthread.h>
 
 #define SIZE 2048
@@ -165,8 +165,7 @@ void printGrid(int printSize)
 int main(int argc, char **argv)
 {
     int i, j, k, thread_id[NUM_THREADS];
-    clock_t start, end;
-    double cpu_time_used;
+    struct timeval start, final;
     pthread_t thread[NUM_THREADS];
 
     // Initialize grids with zeros
@@ -190,7 +189,7 @@ int main(int argc, char **argv)
     grid[lin + 1][col + 1] = 1;
     grid[lin + 2][col + 1] = 1;
 
-    start = clock();
+    gettimeofday(&start, NULL);
     
     for (k = 0; k < GENERATIONS; k++)
     {
@@ -217,11 +216,10 @@ int main(int argc, char **argv)
         }
     }
     
-    end = clock();
-    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+    gettimeofday(&final, NULL);
 
     printf("Alive: %d \n", countAliveCells(grid));
-    printf("Time taken: %f \n", cpu_time_used);
+    printf("Time elapsed: %d seconds\n", (int)(final.tv_sec - start.tv_sec));
 
     pthread_exit(NULL);
     return 0;

@@ -1,7 +1,7 @@
 /*
 Programação Concorrente e Distribuída - 2022/2
 
-Trabalho 1 
+Trabalho 1
 Game of Life / High Life - PThreads e OpenMP
 
 Bruno Rasera
@@ -10,7 +10,7 @@ Letícia Lisboa
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <sys/time.h>
 
 #define SIZE 2048
 #define GENERATIONS 2000
@@ -23,13 +23,13 @@ int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
     // Checks if row or column is on the edge, since board needs infinite edges
     if (row == 0)
     {
-        previousRow = SIZE-1;
+        previousRow = SIZE - 1;
     }
     else
     {
         previousRow = row - 1;
     }
-    if (row == SIZE-1)
+    if (row == SIZE - 1)
     {
         nextRow = 0;
     }
@@ -39,13 +39,13 @@ int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
     }
     if (column == 0)
     {
-        previousColumn = SIZE-1;
+        previousColumn = SIZE - 1;
     }
     else
     {
         previousColumn = column - 1;
     }
-    if (column == SIZE-1)
+    if (column == SIZE - 1)
     {
         nextColumn = 0;
     }
@@ -168,8 +168,7 @@ int main(int argc, char **argv)
 {
     char grid[SIZE][SIZE], newgrid[SIZE][SIZE];
     int i, j;
-    clock_t start, end;
-    double cpu_time_used;
+    struct timeval start, final;
 
     // Initialize grids with zeros
     initializeWithZeros(grid);
@@ -192,19 +191,19 @@ int main(int argc, char **argv)
     grid[lin + 1][col + 1] = 1;
     grid[lin + 2][col + 1] = 1;
 
-    start = clock();
-    for ( i = 0; i < GENERATIONS; i++)
+    gettimeofday(&start, NULL);
+
+    for (i = 0; i < GENERATIONS; i++)
     {
-        //printf("Generation %d - Alive: %d \n", i + 1, countAliveCells(grid));
-        //printGrid(grid, 50);
+        // printf("Generation %d - Alive: %d \n", i + 1, countAliveCells(grid));
+        // printGrid(grid, 50);
         calculateNewGrid(grid, newgrid);
     }
 
-    end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    
+    gettimeofday(&final, NULL);
+
     printf("Alive: %d \n", countAliveCells(grid));
-    printf("Time taken: %f \n", cpu_time_used);
+    printf("Time elapsed: %d seconds\n", (int)(final.tv_sec - start.tv_sec));
 
     return 0;
 }

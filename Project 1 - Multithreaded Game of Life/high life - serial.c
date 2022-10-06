@@ -10,7 +10,7 @@ Letícia Lisboa
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <sys/time.h>
 
 #define SIZE 2048
 #define GENERATIONS 2000
@@ -168,8 +168,7 @@ int main(int argc, char **argv)
 {
     char grid[SIZE][SIZE], newgrid[SIZE][SIZE];
     int i, j;
-    clock_t start, end;
-    double cpu_time_used;
+    struct timeval start, final;
 
     // Initialize grids with zeros
     initializeWithZeros(grid);
@@ -192,16 +191,17 @@ int main(int argc, char **argv)
     grid[lin + 1][col + 1] = 1;
     grid[lin + 2][col + 1] = 1;
 
-    start = clock();
+    gettimeofday(&start, NULL);
+
     for ( i = 0; i < GENERATIONS; i++)
     {
         calculateNewGrid(grid, newgrid);
     }
-    end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    
+    gettimeofday(&final, NULL);
     
     printf("Alive: %d \n", countAliveCells(grid));
-    printf("Time taken: %f \n", cpu_time_used);
+    printf("Time elapsed: %d seconds\n", (int)(final.tv_sec - start.tv_sec));
 
     return 0;
 }
