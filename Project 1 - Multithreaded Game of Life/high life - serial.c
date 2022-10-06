@@ -12,7 +12,7 @@ To compile openMP version, use the -fopenmp flag on gcc
 To compite pthread version, use  the -pthread flag on gcc
 */
 
-#include <stdlib.h>
+#include <stdlib.h>c
 #include <stdio.h>
 #include <sys/time.h>
 

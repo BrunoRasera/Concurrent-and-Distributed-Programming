@@ -2,6 +2,12 @@
 
 Este projeto tem como objetivo analisar o ganho de desempenho ao se utilizar o paralelismo em um programa que necessita de muito processamento. Foram utilizadas as bibliotecas *OpenMP* e *pthread* para a criação das threads.
 
+<br>
+
+![screen-gif](./results/game%20of%20life%20gif.gif)
+
+<br>
+
 ### Game of Life
 
 O Jogo da Vida, criado por John H. Conway, utiliza um autômato celular para simular gerações sucessivas de uma sociedade de organismos vivos.
