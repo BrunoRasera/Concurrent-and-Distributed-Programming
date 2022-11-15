@@ -19,7 +19,7 @@ To compite pthread version, use  the -pthread flag on gcc
 #include <omp.h>
 
 #define SIZE 2048
-#define GENERATIONS 2000
+#define GENERATIONS 5
 #define NUM_THREADS 6
 
 int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
@@ -206,6 +206,8 @@ int main(int argc, char **argv)
 
     for (i = 0; i < GENERATIONS; i++)
     {
+        printf("Generation %d - Alive: %d \n", i + 1, countAliveCells(grid));
+        printGrid(grid, 50);
         calculateNewGrid(grid, newgrid);
     }
 
