@@ -19,8 +19,8 @@ To compite pthread version, use  the -pthread flag on gcc
 #include <pthread.h>
 
 #define SIZE 2048
-#define GENERATIONS 2000
-#define NUM_THREADS 12
+#define GENERATIONS 5
+#define NUM_THREADS 6
 
 char grid[SIZE][SIZE], newgrid[SIZE][SIZE];
 
@@ -198,6 +198,9 @@ int main(int argc, char **argv)
     
     for (k = 0; k < GENERATIONS; k++)
     {
+        printf("Generation %d - Alive: %d \n", k + 1, countAliveCells(grid));
+        printGrid(50);
+
         // Creating threads
         for (i = 0; i < NUM_THREADS; i++)
         {

@@ -20,7 +20,7 @@ To compite pthread version, use  the -pthread flag on gcc
 
 #define SIZE 2048
 #define GENERATIONS 2000
-#define NUM_THREADS 12
+#define NUM_THREADS 6
 
 int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
 {
