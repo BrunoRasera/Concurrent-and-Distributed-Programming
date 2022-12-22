@@ -1,26 +1,24 @@
 /*
 Programação Concorrente e Distribuída - 2022/2
 
-Trabalho 1
-Game of Life / High Life - PThreads e OpenMP
+Trabalho 3
+Game of Life - MPI
 
 Bruno Rasera
 Letícia Lisboa
 Daniel Paiva
 
 To increase the stack size in linux and avoid segmentation fault errors, use ulimit -s unlimited 
-To compile openMP version, use the -fopenmp flag on gcc
-To compite pthread version, use  the -pthread flag on gcc
+To compile MPI version, use 'mpicc -o gol-mpi game\ of\ life\ -\ mpi.c'
+To compite pthread version, use  'mpiexec -np 4 ./gol-mpi'
 */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <omp.h>
 
 #define SIZE 2048
 #define GENERATIONS 2000
-#define NUM_THREADS 12
 
 int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
 {
@@ -116,7 +114,6 @@ void calculateNewGrid(char grid[SIZE][SIZE], char newgrid[SIZE][SIZE])
 {
     int i, j;
 
-    #pragma omp parallel for private (i, j) shared(grid, newgrid)
     for (i = 0; i < SIZE; i++)
     {
         for (j = 0; j < SIZE; j++)
@@ -176,7 +173,6 @@ int main(int argc, char **argv)
 {
     char grid[SIZE][SIZE], newgrid[SIZE][SIZE];
     int i, j;
-    int th_id;
     struct timeval start, final;
 
     // Initialize grids with zeros
@@ -200,8 +196,6 @@ int main(int argc, char **argv)
     grid[lin + 1][col + 1] = 1;
     grid[lin + 2][col + 1] = 1;
 
-    omp_set_num_threads(NUM_THREADS);
-
     gettimeofday(&start, NULL);
 
     for (i = 0; i < GENERATIONS; i++)
@@ -213,7 +207,6 @@ int main(int argc, char **argv)
 
     gettimeofday(&final, NULL);
 
-    // Print result
     printf("Alive: %d \n", countAliveCells(grid));
     printf("Time elapsed: %d seconds\n", (int)(final.tv_sec - start.tv_sec));
 
