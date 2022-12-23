@@ -8,76 +8,67 @@ Bruno Rasera
 Letícia Lisboa
 Daniel Paiva
 
-To increase the stack size in linux and avoid segmentation fault errors, use ulimit -s unlimited 
-To compile MPI version, use 'mpicc -o gol-mpi game\ of\ life\ -\ mpi.c'
-To compite pthread version, use  'mpiexec -np 4 ./gol-mpi'
+To increase the stack size in linux and avoid segmentation fault errors, use ulimit -s unlimited
+To compile MPI version, use 'mpicc game\ of\ life\ -\ mpi.c'
+To run, use  'mpiexec -np <number of procesess> ./a.out'
 */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <mpi.h>
 
 #define SIZE 2048
 #define GENERATIONS 2000
 
-int getNumberOfNeighborsAlive(int row, int column, char grid[SIZE][SIZE])
+void aplyGOLRules(char *grid, int row, int col, int rows, int cols, char *newgrid, int rank, int size)
 {
     int count = 0;
-    int previousRow, previousColumn, nextRow, nextColumn;
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            // Skip this cell
+            if (i == 0 && j == 0)
+                continue;
 
-    // Checks if row or column is on the edge, since board needs infinite edges
-    if (row == 0)
-    {
-        previousRow = SIZE - 1;
-    }
-    else
-    {
-        previousRow = row - 1;
-    }
-    if (row == SIZE - 1)
-    {
-        nextRow = 0;
-    }
-    else
-    {
-        nextRow = row + 1;
-    }
-    if (column == 0)
-    {
-        previousColumn = SIZE - 1;
-    }
-    else
-    {
-        previousColumn = column - 1;
-    }
-    if (column == SIZE - 1)
-    {
-        nextColumn = 0;
-    }
-    else
-    {
-        nextColumn = column + 1;
+            // Takes care of cells on the edges
+            int r = row + i;
+            if (r < 0)
+                r = rows - 1;
+            if (r >= rows)
+                r = 0;
+            int c = col + j;
+            if (c < 0)
+                c = cols - 1;
+            if (c >= cols)
+                c = 0;
+            if (grid[r * cols + c] == 1)
+                count++;
+        }
     }
 
-    // Calculate neighbors alive
-    if (grid[previousRow][previousColumn] == 1)
-        count++;
-    if (grid[previousRow][column] == 1)
-        count++;
-    if (grid[previousRow][nextColumn] == 1)
-        count++;
-    if (grid[row][nextColumn] == 1)
-        count++;
-    if (grid[nextRow][nextColumn] == 1)
-        count++;
-    if (grid[nextRow][column] == 1)
-        count++;
-    if (grid[nextRow][previousColumn] == 1)
-        count++;
-    if (grid[row][previousColumn] == 1)
-        count++;
-
-    return count;
+    // Apply the rules
+    // Alive cell
+    if (grid[row * cols + col] == 1)
+    {
+        if (count == 2 || count == 3)
+            // Cell remains alive
+            newgrid[row * cols + col] = 1;
+        else
+            // Cell dies
+            newgrid[row * cols + col] = 0;
+    }
+    // Dead cell
+    else
+    {
+        if (count == 3)
+            // Cell becomes alive
+            newgrid[row * cols + col] = 1;
+        else
+            // Cell remains dead
+            newgrid[row * cols + col] = 0;
+    }
 }
 
 int countAliveCells(char grid[SIZE][SIZE])
@@ -110,48 +101,6 @@ void initializeWithZeros(char grid[SIZE][SIZE])
     }
 }
 
-void calculateNewGrid(char grid[SIZE][SIZE], char newgrid[SIZE][SIZE])
-{
-    int i, j;
-
-    for (i = 0; i < SIZE; i++)
-    {
-        for (j = 0; j < SIZE; j++)
-        {
-            int neighborsAlive = getNumberOfNeighborsAlive(i, j, grid);
-
-            // Dead cell with 3 alive neighbors becomes alive
-            if (grid[i][j] == 0 && neighborsAlive == 3)
-            {
-                newgrid[i][j] = 1;
-            }
-
-            // Alive cell
-            if (grid[i][j] == 1)
-            {
-                // Alive cell dies
-                if (neighborsAlive < 2 || neighborsAlive > 3)
-                {
-                    newgrid[i][j] = 0;
-                }
-                // Alive cell continues to live
-                else
-                {
-                    newgrid[i][j] = 1;
-                }
-            }
-        }
-    }
-
-    for (i = 0; i < SIZE; i++)
-    {
-        for (j = 0; j < SIZE; j++)
-        {
-            grid[i][j] = newgrid[i][j];
-        }
-    }
-}
-
 void printGrid(char grid[SIZE][SIZE], int printSize)
 {
     int i, j;
@@ -173,7 +122,8 @@ int main(int argc, char **argv)
 {
     char grid[SIZE][SIZE], newgrid[SIZE][SIZE];
     int i, j;
-    struct timeval start, final;
+    int rank, size;
+    double total_mpi_time = 0.0;
 
     // Initialize grids with zeros
     initializeWithZeros(grid);
@@ -196,19 +146,56 @@ int main(int argc, char **argv)
     grid[lin + 1][col + 1] = 1;
     grid[lin + 2][col + 1] = 1;
 
-    gettimeofday(&start, NULL);
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    // Divide the grid into sub-grids
+    int rows_per_proc = SIZE / size;
+    int cols_per_proc = SIZE;
+    int send_counts[size], send_displs[size];
+
+    for (int i = 0; i < size; i++)
+    {
+        send_counts[i] = rows_per_proc * cols_per_proc;
+        send_displs[i] = i * rows_per_proc * cols_per_proc;
+    }
+
+    // Allocate memory for the sub-grid
+    char *sub_matrix = (char *)malloc(rows_per_proc * cols_per_proc * sizeof(char));
+
+    // Start time count
+    total_mpi_time -= MPI_Wtime();
 
     for (i = 0; i < GENERATIONS; i++)
     {
-        //printf("Generation %d - Alive: %d \n", i + 1, countAliveCells(grid));
-        //printGrid(grid, 50);
-        calculateNewGrid(grid, newgrid);
+        // Scatter the grid to all processes from the root process
+        MPI_Scatterv(grid, send_counts, send_displs, MPI_CHAR, sub_matrix, rows_per_proc * cols_per_proc, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+        // Calculate the new generation for the sub-grid
+        for (int row = 0; row < rows_per_proc; row++)
+        {
+            for (int col = 0; col < cols_per_proc; col++)
+            {
+                aplyGOLRules(sub_matrix, row, col, rows_per_proc, cols_per_proc, &newgrid[0][0], rank, size);
+            }
+        }
+
+        // Gather the new sub-grids from all processes
+        MPI_Gatherv(newgrid, rows_per_proc * cols_per_proc, MPI_CHAR, grid, send_counts, send_displs, MPI_CHAR, 0, MPI_COMM_WORLD);
     }
 
-    gettimeofday(&final, NULL);
+    // Stop time count
+    total_mpi_time += MPI_Wtime();
 
-    printf("Alive: %d \n", countAliveCells(grid));
-    printf("Time elapsed: %d seconds\n", (int)(final.tv_sec - start.tv_sec));
+    // Print final information
+    if (rank == 0)
+    {
+        printf("Alive: %d \n", countAliveCells(grid));
+        printf("MPI time with %d processes = %lf\n", size, total_mpi_time);
+    }
 
+    free(sub_matrix);
+    MPI_Finalize();
     return 0;
 }
